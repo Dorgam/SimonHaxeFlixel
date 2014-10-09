@@ -6,18 +6,38 @@ import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
+import flixel.util.FlxColor;
+
+using flixel.util.FlxSpriteUtil;
 
 /**
  * A FlxState which can be used for the game's menu.
  */
 class MenuState extends FlxState
 {
+	
+	//Variables
+	var text:FlxText;
+	var startBtn:FlxButton;
+	
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
 	override public function create():Void
 	{
 		super.create();
+		text = new FlxText(230, 160, 1000);
+		text.text = "Simon Game";
+		text.setFormat(25, FlxColor.RED);
+		add(text);
+		startBtn = new FlxButton(0, 0, "Start Game", switchToPlay);
+		startBtn.screenCenter();
+		add(startBtn);
+	}
+	
+	private function switchToPlay():Void
+	{
+		FlxG.switchState(new PlayState());
 	}
 	
 	/**
