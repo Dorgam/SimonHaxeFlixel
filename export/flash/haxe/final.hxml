@@ -5,6 +5,10 @@
 -D lime=1.0.1
 -cp C:\HaxeToolkit\haxe\lib\openfl/2,0,1/
 -D openfl=2.0.1
+-cp C:\HaxeToolkit\haxe\lib\polygonal-ds/1,4,1/
+-D polygonal-ds=1.4.1
+-cp C:\HaxeToolkit\haxe\lib\polygonal-printf/1,0,2-beta/
+-D polygonal-printf=1.0.2-beta
 -cp source
 -cp C:\HaxeToolkit\haxe\lib\openfl/2,0,1/backends/flash
 -cp C:\HaxeToolkit\haxe\lib\openfl/2,0,1/backends/flash
