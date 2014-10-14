@@ -22,64 +22,70 @@ class PlayState extends FlxState
 	//Variables
 	var zones:Array<Zone> =  new Array<Zone>();
 	var seqs:DLL<Int> = new DLL<Int>();
-	var game:Bool = true;
-	var tempPointer:DLLNode<Int>;
-	var input:Int;
-	var whichClicked:Int;
+	var activeZone:Int;
+	var tempPointer:DLLNode<Int>; //Used to check user Input
+	var displayPointer:DLLNode<Int>; //Used to display
 	var counter:Int;
+	//var isDone:Bool = true;
+	//var isFirst:Bool = true;
 	
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
 	override public function create():Void
 	{
-		counter = 0;
-		tempPointer = seqs.head;
+		//counter = 0;
+		//tempPointer = seqs.head;
 		FlxG.plugins.add(new MouseEventManager());
-		zones[0] = new Zone(110, 20, FlxColor.YELLOW);
-		zones[1] = new Zone(330, 20, FlxColor.BLUE);
-		zones[2] = new Zone(110, 260, FlxColor.RED);
-		zones[3] = new Zone(330, 260, FlxColor.GREEN);
+		zones[0] = new Zone(110, 20, FlxColor.YELLOW, 0);
+		zones[1] = new Zone(330, 20, FlxColor.BLUE, 1);
+		zones[2] = new Zone(110, 260, FlxColor.RED, 2);
+		zones[3] = new Zone(330, 260, FlxColor.GREEN, 3);
 		add(zones[0]);
 		add(zones[1]);
 		add(zones[2]);
 		add(zones[3]);
-		gameLoop();
+		new FlxTimer(2 , gameLoop, 1);
 		super.create();
 	}
 	
-	private function gameLoop():Void
+	private function gameLoop(Timer:FlxTimer):Void
 	{
 		populate();
+		displayPointer = seqs.head;
 		display();
-		trace(seqs.toString());
-		trace(tempPointer.val);
+		tempPointer = seqs.head;
+		counter = seqs.size();
 		listen();
 	}
 	
 	private function display(): Void
 	{
-		var tmp:DLLNode<Int> = seqs.head;
-		do 
-		{
-			Sys.sleep(1);
-			switch (tmp.val)
-			{
-				case 0: displayZone(0);
-				case 1: displayZone(1);
-				case 2: displayZone(2);
-				case 3: displayZone(3);
-			}
-			counter++;
-			tmp = tmp.next;
-		}while (tmp != null);
+		while(displayPointer != null) 
+		{	//trace(tmp.val + " : " + seqs.size()  );
+			//trace(seqs.toString());
+			while(displayPointer != null)
+            {      
+                activeZone = displayPointer.val;
+                new FlxTimer(1, displayZone, 1);
+                trace("displaying " + displayPointer.val + " ...");
+				displayPointer = displayPointer.next;
+            }
+			
+		}
 	}
 	
-	private function displayZone(zonesIndex:Int):Void
+	
+	private function displayZone(Timer:FlxTimer):Void
 	{
-		zones[zonesIndex].changeColor();
-		Sys.sleep(0.5);
-		zones[zonesIndex].firstColor();
+		trace("Displaying zone : " + activeZone);
+		zones[activeZone].changeColor();
+		new FlxTimer(0.5, restartZone, 1);
+	}
+	
+	private function restartZone(Timer:FlxTimer)
+	{
+		zones[activeZone].firstColor();
 	}
 	
 	private function populate():Void
@@ -87,27 +93,36 @@ class PlayState extends FlxState
 		var num:Int;
 		num = Std.random(4);
 		seqs.append(num);
+		//tempPointer = seqs.head;
+	}
+	
+	private function firstPopulate():Void
+	{
+		var num:Int;
+		num = Std.random(4);
+		seqs.append(num);
+		trace(num);
+		tempPointer = seqs.head;
 	}
 	
 	private function listen():Void
 	{
-		if (tempPointer != null)
-		{
-			MouseEventManager.add(zones[0], clicked0 , null, null, null);
-			MouseEventManager.add(zones[1], clicked1 , null, null, null);
-			MouseEventManager.add(zones[2], clicked2 , null, null, null);
-			MouseEventManager.add(zones[3], clicked3 , null, null, null);
-		}
+		MouseEventManager.add(zones[0], clicked);
+		MouseEventManager.add(zones[1], clicked);
+		MouseEventManager.add(zones[2], clicked);
+		MouseEventManager.add(zones[3], clicked);
 	}
 	
-	private function clicked0(Sprite:FlxSprite)
+	private function clicked(Sprite:FlxSprite)
 	{
-		trace("clicked 0");
-		if (tempPointer.val != 0)
+		var zone:Zone = cast Sprite;
+		var val:Int = zone.index;
+		trace("clicked " + val);
+		if (tempPointer.val != val)
 		{
 			FlxG.switchState(new EndState());
 		}
-		else if (tempPointer.val == 0 && counter != 0)
+		else if (tempPointer.val == val && counter > 1)
 		{
 			MouseEventManager.remove(zones[0]);
 			MouseEventManager.remove(zones[1]);
@@ -117,96 +132,13 @@ class PlayState extends FlxState
 			tempPointer = tempPointer.next;
 			listen();
 		}
-		else if (tempPointer.val == 0 && counter == 0)
+		else if (tempPointer.val == val && counter <= 1)
 		{
 			MouseEventManager.remove(zones[0]);
 			MouseEventManager.remove(zones[1]);
 			MouseEventManager.remove(zones[2]);
 			MouseEventManager.remove(zones[3]);
-			gameLoop();
-		}
-	}
-	
-	private function clicked1(Sprite:FlxSprite)
-	{
-		trace("clicked 1");
-		if (tempPointer.val != 1)
-		{
-			FlxG.switchState(new EndState());
-		}
-		else if (tempPointer.val == 1 && counter != 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			counter--;
-			tempPointer = tempPointer.next;
-			listen();
-		}
-		else if (tempPointer.val == 1 && counter == 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			gameLoop();
-		}
-	}
-	
-	private function clicked2(Sprite:FlxSprite)
-	{
-		trace("clicked 2");
-		whichClicked = 2;
-		if (tempPointer.val != 2)
-		{
-			FlxG.switchState(new EndState());
-		}
-		else if (tempPointer.val == 2 && counter != 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			counter--;
-			tempPointer = tempPointer.next;
-			listen();
-		}
-		else if (tempPointer.val == 2 && counter == 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			gameLoop();
-		}
-	}
-	
-	private function clicked3(Sprite:FlxSprite)
-	{
-		trace("clicked 3");
-		whichClicked = 3;
-		if (tempPointer.val != 3)
-		{
-			FlxG.switchState(new EndState());
-		}
-		else if (tempPointer.val == 3 && counter != 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			counter--;
-			tempPointer = tempPointer.next;
-			listen();
-		}
-		else if (tempPointer.val == 3 && counter == 0)
-		{
-			MouseEventManager.remove(zones[0]);
-			MouseEventManager.remove(zones[1]);
-			MouseEventManager.remove(zones[2]);
-			MouseEventManager.remove(zones[3]);
-			gameLoop();
+			new FlxTimer(0.1, gameLoop, 1);
 		}
 	}
 	

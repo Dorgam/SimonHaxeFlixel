@@ -8,18 +8,20 @@ class Zone extends FlxSprite
 {
 	
 	var mainColor:Int;
+	public var index:Int;
 
-	public function new(X:Int, Y:Int , color:Int) 
+	public function new(X:Int, Y:Int , color:Int, index:Int) 
 	{
 		super(X, Y);
 		mainColor = color;
+		this.index = index;
 		makeGraphic(200, 200, color);
 		//MouseEventManager.add(this, clicked);
 	}
 	
 	public function changeColor():Void
 	{
-		makeGraphic(200, 200, FlxColor.BLACK);
+		makeGraphic(200, 200, FlxColor.WHITE);
 	}
 	
 	public function firstColor():Void
