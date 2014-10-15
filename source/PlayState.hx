@@ -26,17 +26,18 @@ class PlayState extends FlxState
 	var tempPointer:DLLNode<Int>; //Used to check user Input
 	var displayPointer:DLLNode<Int>; //Used to display
 	var counter:Int;
-	//var isDone:Bool = true;
-	//var isFirst:Bool = true;
+	var restartVal:Int;
+	public static var score(default,null):Int = 0;
+	var scoreTxt:FlxText;
 	
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
 	override public function create():Void
 	{
-		//counter = 0;
-		//tempPointer = seqs.head;
 		FlxG.plugins.add(new MouseEventManager());
+		scoreTxt = new FlxText(0, 0, "Score : " + score);
+		scoreTxt.setFormat(12);
 		zones[0] = new Zone(110, 20, FlxColor.YELLOW, 0);
 		zones[1] = new Zone(330, 20, FlxColor.BLUE, 1);
 		zones[2] = new Zone(110, 260, FlxColor.RED, 2);
@@ -45,8 +46,14 @@ class PlayState extends FlxState
 		add(zones[1]);
 		add(zones[2]);
 		add(zones[3]);
+		add(scoreTxt);
 		new FlxTimer(2 , gameLoop, 1);
 		super.create();
+	}
+	
+	public function getScore():Int
+	{
+		return score;
 	}
 	
 	private function gameLoop(Timer:FlxTimer):Void
@@ -61,24 +68,19 @@ class PlayState extends FlxState
 	
 	private function display(): Void
 	{
-		while(displayPointer != null) 
-		{	//trace(tmp.val + " : " + seqs.size()  );
-			//trace(seqs.toString());
-			while(displayPointer != null)
-            {      
-                activeZone = displayPointer.val;
-                new FlxTimer(1, displayZone, 1);
-                trace("displaying " + displayPointer.val + " ...");
-				displayPointer = displayPointer.next;
-            }
-			
-		}
+		if(displayPointer != null)
+		{
+			activeZone = displayPointer.val;
+			trace("displaying " + displayPointer.val + " ...");
+			new FlxTimer(1, displayZone, 1);
+			displayPointer = displayPointer.next;
+        }
 	}
-	
 	
 	private function displayZone(Timer:FlxTimer):Void
 	{
 		trace("Displaying zone : " + activeZone);
+		FlxG.sound.play(""+activeZone);
 		zones[activeZone].changeColor();
 		new FlxTimer(0.5, restartZone, 1);
 	}
@@ -86,6 +88,12 @@ class PlayState extends FlxState
 	private function restartZone(Timer:FlxTimer)
 	{
 		zones[activeZone].firstColor();
+		display();
+	}
+	
+	private function restartZoneClick(Timer:FlxTimer)
+	{
+		zones[restartVal].firstColor();
 	}
 	
 	private function populate():Void
@@ -93,7 +101,6 @@ class PlayState extends FlxState
 		var num:Int;
 		num = Std.random(4);
 		seqs.append(num);
-		//tempPointer = seqs.head;
 	}
 	
 	private function firstPopulate():Void
@@ -118,6 +125,10 @@ class PlayState extends FlxState
 		var zone:Zone = cast Sprite;
 		var val:Int = zone.index;
 		trace("clicked " + val);
+		FlxG.sound.play("" + val);
+		zones[val].changeColor();
+		restartVal = val;
+		new FlxTimer(0.5, restartZoneClick, 1);
 		if (tempPointer.val != val)
 		{
 			FlxG.switchState(new EndState());
@@ -138,6 +149,11 @@ class PlayState extends FlxState
 			MouseEventManager.remove(zones[1]);
 			MouseEventManager.remove(zones[2]);
 			MouseEventManager.remove(zones[3]);
+			remove(scoreTxt);
+			score++;
+			scoreTxt = new FlxText(0, 0, "Score : " + score);
+			scoreTxt.setFormat(12);
+			add(scoreTxt);
 			new FlxTimer(0.1, gameLoop, 1);
 		}
 	}
@@ -156,7 +172,6 @@ class PlayState extends FlxState
 	 */
 	override public function update():Void
 	{
-		
 		super.update();
 	}	
 }

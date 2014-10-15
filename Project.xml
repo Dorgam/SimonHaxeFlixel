@@ -29,7 +29,12 @@
 	
 	<set name="BUILD_DIR" value="export" />
 	<classpath name="source" />
-	<assets path="assets" />
+	<assets path="assets">
+		<sound path = "sounds/beep0.wav" id = "0" />
+		<sound path = "sounds/beep1.wav" id = "1" />
+		<sound path = "sounds/beep2.wav" id = "2" />
+		<sound path = "sounds/beep3.wav" id = "3" />
+	</assets>
 	
 	<!--------------------------------LIBRARIES------------------------------------->
 
